@@ -1,0 +1,9 @@
+Worker node:
+
+Step1:
+Repeat Step1 and Step2 from (k8s-master) to k8s-worker node
+
+Step2:
+Execute Kubeadm command to join worker node to master node
+
+

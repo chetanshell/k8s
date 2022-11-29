@@ -1,0 +1,68 @@
+Configure kubernetes cluster via kubeadm
+
+Step1: Update the system and install the docker
+
+# yum update -y
+# swapoff -a
+# yum install docker -y
+# systemctl daemon-reload
+# systemctl restart docker
+
+
+Step2: Copy paste the below config at once
+
+--------------------------------------------------------------
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+
+# Set SELinux in permissive mode (effectively disabling it)
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+sudo systemctl enable --now kubelet
+--------------------------------------------------------------
+
+Step3: Configure the Cgroup driver for kubelet
+
+# vi kubeadm-config.yaml
+
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta3
+kubernetesVersion: v1.24.0
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
+
+
+
+Step4: Initialize the kubernetes cluster
+
+kubeadm init --config kubeadm-config.yaml --ignore-preflight-errors=all
+
+
+Step5: To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+Step6: Kubeadm join <-----> (Run this command in worker nodes)
+
+
+Step7: Run the below command in master node (After the pod deployment)
+
+# kubectl get pods -A
+# kubectl get nodes
+# kubectl describe node <nodeid>
+# kubectl describe pod <podid>
