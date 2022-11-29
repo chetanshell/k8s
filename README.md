@@ -1,10 +1,13 @@
-Readme file for Kubernetes
+*Readme file for Kubernetes*
 
 kubectl create -f httpd-deployment.yaml
+
 kubectl create -f httpd-service.yaml
 
 kubectl get deployment
+
 kubectl get pods
+
 kubectl get svc
 
 HELP
